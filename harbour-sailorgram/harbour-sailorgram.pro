@@ -14,6 +14,8 @@ TARGET = harbour-sailorgram
 
 include($$PWD/../config.pri)
 
+DEFINES += APP_VERSION=\\\"$$APP_VERSION\\\"
+
 CONFIG += sailfishapp
 QT     += sql dbus multimedia
 
@@ -168,7 +170,6 @@ SAILFISHAPP_ICONS = \
 OTHER_FILES += \
     rpm/harbour-sailorgram.changes \
     rpm/harbour-sailorgram.spec \
-    rpm/harbour-sailorgram.yaml \
     harbour-sailorgram.desktop \
     qml/cover/*.png
 

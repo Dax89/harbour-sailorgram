@@ -12,9 +12,7 @@ Dialog
     acceptDestinationAction: PageStackAction.Pop
 
     onAccepted: {
-        context.sailorgram.keepRunning = tskeeprunning.checked;
         context.sailorgram.autostart = tsdaemonenabled.checked;
-        Settings.set("keeprunning", tskeeprunning.checked);
     }
 
     SilicaFlickable
@@ -31,19 +29,10 @@ Dialog
 
             TextSwitch
             {
-                id: tskeeprunning
-                anchors { left: parent.left; right: parent.right; leftMargin: Theme.paddingSmall; rightMargin: Theme.paddingSmall }
-                text: qsTr("Keep running")
-                description: qsTr("SailorGram keeps running in background even when closed")
-                checked: context.sailorgram.keepRunning
-            }
-
-            TextSwitch
-            {
                 id: tsdaemonenabled
                 anchors { left: parent.left; right: parent.right; leftMargin: Theme.paddingSmall; rightMargin: Theme.paddingSmall }
                 text: qsTr("Autostart")
-                description: qsTr("SailorGram starts automatically")
+                description: qsTr("SailorGram starts automatically and will continue working in background after closing")
                 checked: context.sailorgram.autostart
             }
         }

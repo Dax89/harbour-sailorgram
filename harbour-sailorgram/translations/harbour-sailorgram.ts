@@ -140,19 +140,11 @@ message(s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Keep running</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SailorGram keeps running in background even when closed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Autostart</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>SailorGram starts automatically</source>
+        <source>SailorGram starts automatically and will continue working in background after closing</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

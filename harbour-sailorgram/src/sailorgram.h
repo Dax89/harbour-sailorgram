@@ -2,6 +2,7 @@
 #define SAILORGRAM_H
 
 #include <QGuiApplication>
+#include <QQuickView>
 #include <objects/notifications/telegramnotifications.h>
 #include <objects/notifications/notificationobject.h>
 #include "dbus/interface/sailorgraminterface.h"
@@ -25,6 +26,7 @@ class SailorGram : public QObject
     Q_PROPERTY(QString voiceRecordPath READ voiceRecordPath CONSTANT FINAL)
     Q_PROPERTY(TelegramNotifications* notifications READ notifications CONSTANT FINAL)
     Q_PROPERTY(QList<QObject *> translations READ translations CONSTANT FINAL)
+    Q_PROPERTY(QQuickView* view READ view WRITE setView NOTIFY viewChanged)
 
     public:
         explicit SailorGram(QObject *parent = 0);
@@ -41,9 +43,11 @@ class SailorGram : public QObject
         QString voiceRecordPath() const;
         TelegramNotifications* notifications() const;
         QList<QObject *> translations() const;
+        QQuickView* view() const;
         void setTelegram(Telegram* telegram);
         void setKeepRunning(bool keep);
         void setAutostart(bool autostart);
+        void setView(QQuickView* view);
 
     public:
         static bool hasDaemonFile();
@@ -63,6 +67,7 @@ class SailorGram : public QObject
         void autostartChanged();
         void keepRunningChanged();
         void daemonizedChanged();
+        void viewChanged();
         void wakeUpRequested();
         void openDialogRequested(TLInt dialogid);
 
@@ -72,13 +77,16 @@ class SailorGram : public QObject
         SailorgramInterface* _interface;
         Telegram* _telegram;
         bool _daemonized;
-        bool _autostart;
+        QQuickView* _view;
 
     private:
         static const QString DAEMON_FILE;
         static const QString PUBLIC_KEY_FILE;
         static const QString EMOJI_FOLDER;
         static const QString APPLICATION_PRETTY_NAME;
+        static const QString SYSTEMD_SERVICE;
+        static const QString SYSTEMD_ENABLER_DIR;
+        static const QString SYSTEMD_ENABLER;
 };
 
 #endif // SAILORGRAM_H

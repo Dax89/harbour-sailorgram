@@ -7,6 +7,8 @@ After=lipstick.service
 Type=dbus
 ExecStart=/usr/bin/invoker --type=generic /usr/bin/harbour-sailorgram -daemon
 BusName=org.harbour.sailorgram
+Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=post-user-session.target

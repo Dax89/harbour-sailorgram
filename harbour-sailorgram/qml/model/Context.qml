@@ -11,9 +11,9 @@ Item
     readonly property string apiHash: "5ce096f34c8afab871edce728e6d64c9"
     readonly property string hereAppId: "MqR7KyY6dZpTbKiFwc3h"
     readonly property string hereAppCode: "zfYp6V9Ou_wDQn4NVqMofA"
-    readonly property string version: "0.89"
+    readonly property string version: Qt.application.version
     readonly property bool beta: true
-    readonly property int betanum: 4
+    readonly property int betanum: 999
 
     readonly property bool reconnecting: reconnectTimer.running
 
@@ -84,8 +84,18 @@ Item
 
     property SailorGram sailorgram: SailorGram {
         telegram: context.telegram
+        view: quickView
+
+        onWakeUpRequested: {
+            if (Qt.application.state !== Qt.ApplicationActive)
+                mainwindow.activate();
+        }
 
         onOpenDialogRequested: {
+            if (!quickView.active) {
+                quickView.show()
+            }
+
             var dialog = context.dialogs.getDialog(dialogid);
 
             if(!dialog)
@@ -142,7 +152,6 @@ Item
             context.angledbubbles = parseInt(Settings.transactionGet(tx, "angledbubbles"));
             context.showsearchfield = parseInt(Settings.transactionGet(tx, "showsearchfield"));
             context.defaultemojiset = parseInt(Settings.transactionGet(tx, "defaultemojiset"));
-            context.sailorgram.keepRunning = parseInt(Settings.transactionGet(tx, "keeprunning"));
 
             var opacity = Settings.transactionGet(tx, "bubblesopacity");
             context.bubblesopacity = (opacity === false) ? 100 : parseInt(opacity);

@@ -12,7 +12,7 @@ BackgroundRectangle
 
     id: dialogtopheader
     width: parent.width
-    height: Theme.itemSizeSmall + (Theme.paddingSmall * 2)
+    implicitHeight: Theme.itemSizeSmall + (Theme.paddingSmall * 2)
 
     Column
     {

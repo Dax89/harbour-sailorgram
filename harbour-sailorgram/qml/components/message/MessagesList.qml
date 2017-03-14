@@ -27,6 +27,28 @@ SilicaListView
         return selectionlist;
     }
 
+    property int lastCount
+
+    Component.onCompleted: {
+        lastCount = count
+    }
+
+    onCountChanged: {
+        if (lastCount == 0 && model.newMessageIndex >= 0 && model.newMessageIndex < count) {
+            positionViewAtIndex(model.newMessageIndex, ListView.Center);
+        }
+        lastCount = count
+    }
+
+    Connections {
+        target: model
+        onNewMessageIndexChanged: {
+            if (model.newMessageIndex >= 0 && model.newMessageIndex < count) {
+                positionViewAtIndex(model.newMessageIndex, ListView.Center);
+            }
+        }
+    }
+
     Connections
     {
         target: dialogpage.context.positionSource
@@ -47,8 +69,6 @@ SilicaListView
     verticalLayoutDirection: ListView.BottomToTop
     currentIndex: -1
 
-    Component.onCompleted: messageslist.positionViewAtIndex(model.newMessageIndex, ListView.Center);
-
     onSelectionModeChanged: {
         if(selectionMode) {
             selectedMessages = new Object;
@@ -63,7 +83,7 @@ SilicaListView
     }
 
     delegate: Column {
-        width: parent.width
+        width: ListView.view.width
         spacing: Theme.paddingSmall
 
         NewMessage { id: newmessage; visible: model.isMessageNew }

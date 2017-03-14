@@ -12,14 +12,15 @@ int main(int argc, char *argv[])
 {
     QScopedPointer<QGuiApplication> application(SailfishApp::application(argc, argv));
     application->setApplicationName("harbour-sailorgram");
-    application->setApplicationVersion("0.9");
-    application->addLibraryPath(QString("%1/../share/%2/lib").arg(qApp->applicationDirPath(), qApp->applicationName()));
+    application->setApplicationVersion(QString(APP_VERSION));
+//    application->addLibraryPath(QString("%1/../share/%2/lib").arg(qApp->applicationDirPath(), qApp->applicationName()));
 
     QStringList args = application->arguments();
     bool daemonized = args.contains("-daemon");
 
-    if(daemonized && !SailorGram::hasDaemonFile())
-        return 0;
+//    if(daemonized && !SailorGram::hasDaemonFile()) { // segfault on using SailorGram::hasDaemonFile
+//        return 0;
+//    }
 
     QDBusConnection sessionbus = QDBusConnection::sessionBus();
 
@@ -47,13 +48,15 @@ int main(int argc, char *argv[])
     QQmlEngine* engine = view->engine();
     QObject::connect(engine, SIGNAL(quit()), application.data(), SLOT(quit()));
     engine->addImageProvider(QStringLiteral("thumbnail"), new ThumbnailProvider);
+    view->rootContext()->setContextProperty("quickView", view.data());
 
     view->setSource(SailfishApp::pathTo("qml/harbour-sailorgram.qml"));
 
-    if(daemonized)
-        application->setQuitOnLastWindowClosed(false);
-    else
+    if(daemonized) {
+        view->create();
+    } else {
         view->show();
+    }
 
     return application->exec();
 }

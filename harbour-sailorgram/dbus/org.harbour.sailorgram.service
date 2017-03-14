@@ -1,4 +1,5 @@
 [D-BUS Service]
 Name=org.harbour.sailorgram
-Exec=/usr/bin/invoker --type=generic /usr/bin/harbour-sailorgram
-SystemdService=org.harbour.sailorgram
+Interface=org.harbour.sailorgram
+Exec=/bin/false
+SystemdService=harbour-sailorgram-notifications.service

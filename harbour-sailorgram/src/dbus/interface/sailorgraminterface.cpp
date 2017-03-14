@@ -14,14 +14,14 @@ SailorgramInterface::SailorgramInterface(QObject *parent) : QObject(parent)
         return;
     }
 
+    if(!connection.registerObject("/", this))
+        qWarning() << connection.lastError().message();
+
     if(!connection.registerService(SailorgramInterface::INTERFACE_NAME))
     {
         qWarning() << connection.lastError().message();
         return;
     }
-
-    if(!connection.registerObject("/", this))
-        qWarning() << connection.lastError().message();
 }
 
 void SailorgramInterface::sendWakeUp()

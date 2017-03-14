@@ -6,15 +6,20 @@ const QString SailorGram::DAEMON_FILE = "daemon";
 const QString SailorGram::PUBLIC_KEY_FILE = "public.key";
 const QString SailorGram::EMOJI_FOLDER = "emoji";
 const QString SailorGram::APPLICATION_PRETTY_NAME = "SailorGram";
+const QString SailorGram::SYSTEMD_SERVICE = "/usr/lib/systemd/user/harbour-sailorgram-notifications.service";
+const QString SailorGram::SYSTEMD_ENABLER_DIR = QStringLiteral("%1/.config/systemd/user/post-user-session.target.wants").arg(QDir::homePath());
+const QString SailorGram::SYSTEMD_ENABLER = QStringLiteral("%1/harbour-sailorgram-notifications.service").arg(SailorGram::SYSTEMD_ENABLER_DIR);
 
-SailorGram::SailorGram(QObject *parent): QObject(parent), _telegram(NULL), _daemonized(false)
+SailorGram::SailorGram(QObject *parent): QObject(parent), _telegram(NULL), _daemonized(false), _view(NULL)
 {
     this->_interface = new SailorgramInterface(this);
     this->_notifications = new TelegramNotifications(this);
-    //this->_autostart = !SailorGram::hasDaemonFile();
+
+    qApp->setQuitOnLastWindowClosed(!autostart());
 
     connect(qApp, &QGuiApplication::applicationStateChanged, this, &SailorGram::onApplicationStateChanged);
     connect(this->_notifications, &TelegramNotifications::newMessage, this, &SailorGram::notify);
+    connect(this->_notifications, &TelegramNotifications::dismissNotification, this, &SailorGram::closeNotification);
     connect(this->_interface, &SailorgramInterface::wakeUpRequested, this, &SailorGram::onWakeUpRequested);
     connect(this->_interface, &SailorgramInterface::openDialogRequested, this, &SailorGram::openDialogRequested);
 }
@@ -26,7 +31,7 @@ Telegram *SailorGram::telegram() const
 
 bool SailorGram::autostart() const
 {
-    return this->_autostart;
+    return QFile::exists(SailorGram::SYSTEMD_ENABLER);
 }
 
 bool SailorGram::keepRunning() const
@@ -118,6 +123,11 @@ QList<QObject *> SailorGram::translations() const
     return trlist;
 }
 
+QQuickView *SailorGram::view() const
+{
+    return this->_view;
+}
+
 void SailorGram::setTelegram(Telegram *telegram)
 {
     if(this->_telegram == telegram)
@@ -139,23 +149,33 @@ void SailorGram::setKeepRunning(bool keep)
 
 void SailorGram::setAutostart(bool autostart)
 {
-    if(this->_autostart == autostart)
+    if (this->autostart() == autostart) {
         return;
+    }
 
-    this->_autostart = autostart;
-
-    QDir dir(TelegramConfig_storagePath);
+    qApp->setQuitOnLastWindowClosed(!autostart);
 
     if(autostart)
     {
-        QFile file(dir.absoluteFilePath(SailorGram::DAEMON_FILE));
-        file.open(QFile::WriteOnly);
-        file.close();
+        if (!QDir(SailorGram::SYSTEMD_ENABLER_DIR).exists()) {
+            QDir::home().mkpath(SailorGram::SYSTEMD_ENABLER_DIR);
+        }
+        QFile::link(SailorGram::SYSTEMD_SERVICE, SailorGram::SYSTEMD_ENABLER);
     }
-    else
-        QFile::remove(dir.absoluteFilePath(SailorGram::DAEMON_FILE));
+    else {
+        QFile::remove(SailorGram::SYSTEMD_ENABLER);
+    }
 
     emit autostartChanged();
+}
+
+void SailorGram::setView(QQuickView *view)
+{
+    if(this->_view == view)
+        return;
+
+    this->_view = view;
+    emit viewChanged();
 }
 
 bool SailorGram::hasDaemonFile()
@@ -255,6 +275,14 @@ void SailorGram::onWakeUpRequested()
     {
         this->_daemonized = false;
         emit daemonizedChanged();
+    }
+
+    if(this->_view) {
+        if (this->_view->isActive()) {
+            this->_view->raise();
+        } else {
+            this->_view->show();
+        }
     }
 
     emit wakeUpRequested();
